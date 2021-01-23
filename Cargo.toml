@@ -13,6 +13,6 @@ repository = "https://github.com/abetterinternet/libprio-rs"
 aes-ctr = "0.4.0"
 aes-gcm = "0.6.0"
 base64 = "0.12.3"
-rand = "0.7"
-ring = "0.16.15"
+rand = { version = "0.7", features = ["wasm-bindgen"]}
+ring = { git = "https://github.com/acmiyaguchi/ring.git", branch="ed25519-wasm", features=["wasm32_c"] }
 thiserror = "1.0"

@@ -75,9 +75,9 @@ impl PrivateKey {
 /// symmetic encryption and MAC.
 pub fn encrypt_share(share: &[u8], key: &PublicKey) -> Result<Vec<u8>, EncryptError> {
     let rng = ring::rand::SystemRandom::new();
-    let ephemeral_priv = agreement::EphemeralPrivateKey::generate(&agreement::ECDH_P256, &rng)
+    let ephemeral_priv = agreement::EphemeralPrivateKey::generate(&agreement::X25519, &rng)
         .map_err(|_| EncryptError::KeyAgreementError)?;
-    let peer_public = agreement::UnparsedPublicKey::new(&agreement::ECDH_P256, &key.0);
+    let peer_public = agreement::UnparsedPublicKey::new(&agreement::X25519, &key.0);
     let ephemeral_pub = ephemeral_priv
         .compute_public_key()
         .map_err(|_| EncryptError::KeyAgreementError)?;
@@ -114,14 +114,14 @@ pub fn decrypt_share(share: &[u8], key: &PrivateKey) -> Result<Vec<u8>, EncryptE
     let empheral_pub_bytes: &[u8] = &share[0..PUBLICKEY_LENGTH];
 
     let ephemeral_pub =
-        agreement::UnparsedPublicKey::new(&agreement::ECDH_P256, empheral_pub_bytes);
+        agreement::UnparsedPublicKey::new(&agreement::X25519, empheral_pub_bytes);
 
     let fake_rng = ring::test::rand::FixedSliceRandom {
         // private key consists of the public key + private scalar
         bytes: &key.0[PUBLICKEY_LENGTH..],
     };
 
-    let private_key = agreement::EphemeralPrivateKey::generate(&agreement::ECDH_P256, &fake_rng)
+    let private_key = agreement::EphemeralPrivateKey::generate(&agreement::X25519, &fake_rng)
         .map_err(|_| EncryptError::KeyAgreementError)?;
 
     let symmetric_key_bytes = agreement::agree_ephemeral(
