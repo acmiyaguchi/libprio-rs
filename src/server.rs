@@ -148,7 +148,7 @@ impl Server {
 }
 
 /// Verification message for proof validation
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct VerificationMessage {
     /// f evaluated at random point
     pub f_r: Field,
