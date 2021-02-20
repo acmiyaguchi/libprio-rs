@@ -12,7 +12,7 @@ type Aes128 = aes_gcm::AesGcm<aes_gcm::aes::Aes128, U16>;
 /// Length of the EC public key (X9.62 format) -- except we swapped over to
 /// x25519 for the sake of wasm demonstration, which does not have the same
 /// length
-pub const PUBLICKEY_LENGTH: usize = 65 - 12;
+pub const PUBLICKEY_LENGTH: usize = 32;
 /// Length of the AES-GCM tag
 pub const TAG_LENGTH: usize = 16;
 /// Length of the symmetric AES-GCM key
