@@ -3,10 +3,12 @@
 
 //! Finite field arithmetic over a prime field using a 32bit prime.
 
+use serde::{Deserialize, Serialize};
+
 /// Newtype wrapper over u32
 ///
 /// Implements the arithmetic over the finite prime field
-#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Default, Serialize, Deserialize)]
 pub struct Field(u32);
 
 /// Modulus for the field, a FFT friendly prime: 2^32 - 2^20 + 1

@@ -9,6 +9,7 @@ use crate::polynomial::*;
 use crate::prng;
 use crate::util;
 use crate::util::*;
+use serde::{Deserialize, Serialize};
 
 /// Auxiliary memory for constructing a
 /// [`VerificationMessage`](struct.VerificationMessage.html)
@@ -147,6 +148,7 @@ impl Server {
 }
 
 /// Verification message for proof validation
+#[derive(Serialize, Deserialize)]
 pub struct VerificationMessage {
     /// f evaluated at random point
     pub f_r: Field,

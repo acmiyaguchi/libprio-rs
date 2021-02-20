@@ -16,3 +16,4 @@ base64 = "0.12.3"
 rand = { version = "0.7", features = ["wasm-bindgen"]}
 ring = { git = "https://github.com/acmiyaguchi/ring.git", branch="ed25519-wasm", features=["wasm32_c"] }
 thiserror = "1.0"
+serde = { version = "1.0", features = ["derive"] }
