@@ -90,11 +90,12 @@ pub fn encrypt_share(share: &[u8], key: &PublicKey) -> Result<Vec<u8>, EncryptEr
         EncryptError::KeyAgreementError,
         |material| Ok(x963_kdf(material, ephemeral_pub.as_ref())),
     )?;
+    println!("{:?}", symmetric_key_bytes);
 
     let in_out = share.to_owned();
     let encrypted = encrypt_aes_gcm(
-        &symmetric_key_bytes[..16],
-        &symmetric_key_bytes[16..],
+        &symmetric_key_bytes[..KEY_LENGTH],
+        &symmetric_key_bytes[KEY_LENGTH..],
         in_out,
     )?;
 
@@ -119,8 +120,10 @@ pub fn decrypt_share(share: &[u8], key: &PrivateKey) -> Result<Vec<u8>, EncryptE
         agreement::UnparsedPublicKey::new(&agreement::X25519, empheral_pub_bytes);
 
     let fake_rng = ring::test::rand::FixedSliceRandom {
-        // private key consists of the public key + private scalar
-        bytes: &key.0[PUBLICKEY_LENGTH..],
+        // private key consists of the last 32 bytes
+        bytes: &key.0[(key.0.len() - 32)..],
+        // bytes: &key.0[..PUBLICKEY_LENGTH]
+        // bytes: &key.0[(PUBLICKEY_LENGTH+0)..(PUBLICKEY_LENGTH+32+0)]
     };
 
     let private_key = agreement::EphemeralPrivateKey::generate(&agreement::X25519, &fake_rng)
@@ -133,6 +136,7 @@ pub fn decrypt_share(share: &[u8], key: &PrivateKey) -> Result<Vec<u8>, EncryptE
         |material| Ok(x963_kdf(material, empheral_pub_bytes)),
     )?;
 
+    println!("{:?}", symmetric_key_bytes);
     // in_out is the AES-GCM ciphertext+tag, wihtout the ephemeral EC pubkey
     let in_out = share[PUBLICKEY_LENGTH..].to_owned();
     decrypt_aes_gcm(
@@ -176,17 +180,16 @@ mod tests {
     #[test]
     fn test_encrypt_decrypt() -> Result<(), EncryptError> {
         let pub_key = PublicKey::from_base64(
-            "BIl6j+J6dYttxALdjISDv6ZI4/VWVEhUzaS05LgrsfswmbLOgNt9\
-        HUC2E0w+9RqZx3XMkdEHBHfNuCSMpOwofVQ=",
+            "bR8oPSXlMtXfLTwrg/vJrB/VdwrknWB4Eza9KN+A+tY=",
         )?;
         let priv_key = PrivateKey::from_base64(
-            "BIl6j+J6dYttxALdjISDv6ZI4/VWVEhUzaS05LgrsfswmbLOgN\
-        t9HUC2E0w+9RqZx3XMkdEHBHfNuCSMpOwofVSq3TfyKwn0NrftKisKKVSaTOt5seJ67P5QL4hxgPWvxw==",
+            "MFMCAQEwBQYDK2VwBCIEIHCfTsoy86pMyFhrG1i4+biUAn+tWPbKETySLXlKmzTNoSMDIQBtHyg9JeUy1d8tPCuD+8msH9V3CuSdYHgTNr0o34D61g==",
         )?;
         let data = (0..100).map(|_| rand::random::<u8>()).collect::<Vec<u8>>();
         let encrypted = encrypt_share(&data, &pub_key)?;
 
         let decrypted = decrypt_share(&encrypted, &priv_key)?;
+        println!("{:?}", decrypted);
         assert_eq!(decrypted, data);
         Ok(())
     }
